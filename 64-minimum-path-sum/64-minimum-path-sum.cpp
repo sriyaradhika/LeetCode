@@ -3,26 +3,30 @@ public:
     int minPathSum(vector<vector<int>>& grid) {
        int n=grid.size();
         int m=grid[0].size();
-        return minSumPath(n,m,grid);
-    }
-    int minSumPathUtil(int i, int j,vector<vector<int>> &matrix,vector<vector<int>> &dp)
-{
-  if(i==0 && j == 0)
-    return matrix[0][0];
-  if(i<0 || j<0)
-    return 1e9;
-  if(dp[i][j]!=-1) return dp[i][j];
-    
-  int up = matrix[i][j]+minSumPathUtil(i-1,j,matrix,dp);
-  int left = matrix[i][j]+minSumPathUtil(i,j-1,matrix,dp);
-  
-  return dp[i][j] = min(up,left);
-  
-}
-
-int minSumPath(int n, int m, vector<vector<int> > &matrix){
-    vector<vector<int> > dp(n,vector<int>(m,-1));
-    return minSumPathUtil(n-1,m-1,matrix,dp);
-    
+        vector<vector<int>> dp(n,vector<int>(m,0));
+        vector<int>prev(m,0);
+        for(int i=0;i<n;i++){
+            vector<int>cur(m,0);
+            for(int j=0;j<m;j++){
+                if(i==0 && j==0){
+                    cur[j]=grid[i][j];
+                }
+                else{
+                    int up=grid[i][j];
+                    if(i>0)
+                        up+=prev[j];
+                    else
+                        up+=1e9;
+                    int lf=grid[i][j];
+                    if(j>0)
+                        lf+=cur[j-1];
+                    else
+                        lf+=1e9;
+                    cur[j]=min(up,lf);                    
+                }
+            }
+             prev=cur;
+        }
+    return prev[m-1];
 }
 };
