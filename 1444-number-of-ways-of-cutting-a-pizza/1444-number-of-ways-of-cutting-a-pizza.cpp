@@ -1,33 +1,39 @@
 class Solution {
 public:
+    long long M=1e9+7;
+    long long int dp[51][51][11];
+    int n,m;
+    long long int count(int r,int c,int cuts,vector<vector<int>>&apples){
+        if(dp[r][c][cuts]!=-1){
+            return dp[r][c][cuts];
+        }
+        if(cuts==0){
+            dp[r][c][cuts]=(apples[r][c]>0)?1:0;
+            return dp[r][c][cuts];
+        }
+        long long int rs=0,cs=0;
+        for(int i=r+1;i<n;i++){
+            if(apples[r][c]-apples[i][c]>0 && apples[i][c]>=cuts)
+            rs=(rs+count(i,c,cuts-1,apples))%M;
+        }
+        for(int j=c+1;j<m;j++){
+            if(apples[r][c]-apples[r][j]>0 && apples[r][j]>=cuts)
+            cs=(cs+count(r,j,cuts-1,apples))%M;
+        }
+        dp[r][c][cuts]=rs+cs;
+        return dp[r][c][cuts];
+    }
     int ways(vector<string>& pizza, int k) {
-        int rows = pizza.size(), cols = pizza[0].size();
-        vector apples(rows + 1, vector<int>(cols + 1));
-        vector dp(k, vector(rows, vector<int>(cols)));
-        for (int row = rows - 1; row >= 0; row--) {
-            for (int col = cols - 1; col >= 0; col--) {
-                apples[row][col] = (pizza[row][col] == 'A') + apples[row + 1][col] +
-                                   apples[row][col + 1] - apples[row + 1][col + 1];
-                dp[0][row][col] = apples[row][col] > 0;
+       memset(dp,-1,sizeof(dp));
+        n=pizza.size();
+        m=pizza[0].size();
+        vector<vector<int>>apples(n+1,vector<int>(m+1,0));
+        for(int i=n-1;i>=0;i--){
+            for(int j=m-1;j>=0;j--){
+                apples[i][j]=apples[i+1][j]+apples[i][j+1]-apples[i+1][j+1]+(pizza[i][j]=='A');
             }
         }
-        const int mod = 1000000007;
-        for (int remain = 1; remain < k; remain++) {
-            for (int row = 0; row < rows; row++) {
-                for (int col = 0; col < cols; col++) {
-                    for (int next_row = row + 1; next_row < rows; next_row++) {
-                        if (apples[row][col] - apples[next_row][col] > 0) {
-                            (dp[remain][row][col] += dp[remain - 1][next_row][col]) %= mod;
-                        }
-                    }
-                    for (int next_col = col + 1; next_col < cols; next_col++) {
-                        if (apples[row][col] - apples[row][next_col] > 0) {
-                            (dp[remain][row][col] += dp[remain - 1][row][next_col]) %= mod;
-                        }
-                    }
-                }
-            }
-        }
-        return dp[k - 1][0][0];
+       long long ans=count(0,0,k-1,apples);
+        return ans;
     }
 };
